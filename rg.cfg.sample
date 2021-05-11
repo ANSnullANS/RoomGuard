@@ -1,0 +1,7 @@
+SSID
+WiFi-PSK
+0.0 # Temp. Correction
+0.0 # Humidity Correction
++4369918190066 # Alert Phone
+30.0 # Alert Temp.
+40.0 # Alert Humidity

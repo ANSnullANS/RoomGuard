@@ -1,0 +1,21 @@
+#define DEBUG       true
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define DHTPIN 5
+#define DHTTYPE    DHT22
+
+float TEMP_CORRECT = 0.0;
+float HUMID_CORRECT = 0.0;
+
+// Uncomment GSM_ENABLED to make use of SMS-Functions
+#define GSM_ENABLED       true
+#define GSM_RX            2
+#define GSM_TX            3
+String  GSM_ALERT_PHONE = "+430000000";
+float   ALERT_TEMP =      30.0;
+float   ALERT_HUMID =     40.0;
+
+#define SD_ENABLED    true
+#define SD_CS         10
