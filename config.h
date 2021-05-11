@@ -11,8 +11,6 @@ float HUMID_CORRECT = 0.0;
 
 // Uncomment GSM_ENABLED to make use of SMS-Functions
 #define GSM_ENABLED       true
-#define GSM_RX            2
-#define GSM_TX            3
 String  GSM_ALERT_PHONE = "+430000000";
 float   ALERT_TEMP =      30.0;
 float   ALERT_HUMID =     40.0;
