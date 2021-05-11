@@ -84,6 +84,7 @@ void setup() {
     String GSM_ALERT_PHONE = oSDFile.readStringUntil('\n');
     String sAlertTemp = oSDFile.readStringUntil('\n');
     String sAlertHumi = oSDFile.readStringUntil('\n');
+    oSDFile.close();
 
     // Process/Convert strings from config-file.
     int iSSIDLen = sSSID.length();
