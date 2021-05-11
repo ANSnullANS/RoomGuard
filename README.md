@@ -44,4 +44,4 @@ Room Temperature Monitor with WiFi (and optional GSM) connectivity. Based on Ard
 4. Save rg.cfg on SD-Card.
 
 ### Wiring
-Coming soon ;)
+see WIRING.md (https://github.com/ANSnullANS/RoomGuard/blob/main/WIRING.md)
