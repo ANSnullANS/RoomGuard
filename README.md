@@ -1,6 +1,15 @@
 # RoomGuard
 Room Temperature Monitor with WiFi (and optional GSM) connectivity. Based on Arduino.
 
+## Features
+### Working & Tested
+- Monitor Temperature and Humidity
+- Show Values on OLED Display
+- Fetch Values via Webbrowser (XML Format)
+  - Can be integrated in most Monitoring tools (e.g. Zabbix, Icinga)
+### In Progress
+- SMS-Alert support via SIM800L Module
+
 ## How to use
 ### Programming Arduino Nano 33 IoT
 1. Download code or clone repository ;)
