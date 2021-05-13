@@ -6,13 +6,12 @@
 #include <DHT_U.h>
 #include "secrets.h" 
 #include "config.h"
+#include "icons.h"
 
 #ifdef SD_ENABLED
   #include <SPI.h>
   #include <SD.h>
   File oSDFile;
-  String sSSID = "";
-  String sPSK = "";
 #endif
 
 // Variables for WiFi Connection.
@@ -20,6 +19,11 @@ int iWiFiStatus = WL_IDLE_STATUS;
 WiFiServer oServer(80);
 IPAddress WIFI_IP;
 char cClientData;
+int iSSIDLen = 0;
+int iPSKLen = 0;
+int iWiFiSignal = -100;
+String sSSID = "";
+String sPSK = "";
 
 // OLED Display.
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -38,6 +42,8 @@ long lUpdateInterval = 2000;
 long lNow = 0;
 long lLastSensorUpdate = 0;
 long lSensorInterval = 5000;
+long lLastWiFiCheck = 0;
+long lWiFiInterval = 5000;
 
 // Setup all components and connect to WiFi.
 void setup() {
@@ -87,10 +93,10 @@ void setup() {
     oSDFile.close();
 
     // Process/Convert strings from config-file.
-    int iSSIDLen = sSSID.length();
+    iSSIDLen = sSSID.length();
     char aSSID[iSSIDLen];
     sSSID.toCharArray(aSSID, iSSIDLen);
-    int iPSKLen = sPSK.length();
+    iPSKLen = sPSK.length();
     char aPSK[iPSKLen];
     sPSK.toCharArray(aPSK, iPSKLen);
 
@@ -119,6 +125,10 @@ void setup() {
     // If SD-Card is not enabled, use settings from config.h and secrets.h
     char aSSID[] = SECRET_SSID;
     char aPSK[] = SECRET_PASS;
+    sSSID = SECRET_SSID;
+    sPSK = SECRET_PASS;
+    iSSIDLen = sSSID.length();
+    iPSKLen = sPSK.length();
     display.print(F("SSID: "));
     display.println(SECRET_SSID);
   #endif
@@ -165,6 +175,12 @@ void setup() {
 // Default Process.
 void loop() {
   lNow = millis();
+
+  // Check WiFi status after timeout.
+  if (lNow >= lLastWiFiCheck + lWiFiInterval) {
+    checkWiFi();
+    lLastWiFiCheck = lNow;
+  }
 
   // Update sensor data after refresh-timeout.
   if (lNow >= lLastSensorUpdate + lSensorInterval || lLastSensorUpdate == 0) {
@@ -234,6 +250,26 @@ void loop() {
   }
 }
 
+// Check WiFi Status and Reconnect if necessary.
+void checkWiFi() {
+  iWiFiStatus = WiFi.status();
+  if (iWiFiStatus != WL_CONNECTED) {
+    display.fillRect(0,0,128,7,SSD1306_BLACK);
+    display.setCursor(0, 0);
+    display.setTextSize(1);
+    display.print(F("Reconnecting..."));
+    display.display();
+
+    char aSSID[iSSIDLen];
+    sSSID.toCharArray(aSSID, iSSIDLen);
+
+    char aPSK[iPSKLen];
+    sPSK.toCharArray(aPSK, iPSKLen);
+    
+    iWiFiStatus = WiFi.begin(aSSID, aPSK);
+  }
+}
+
 // Wipe Screen
 void blackoutScreen() {
   display.fillRect(0,0,128,64,SSD1306_BLACK);
@@ -243,13 +279,46 @@ void blackoutScreen() {
 // Print WiFi Status on Display.
 void printWiFiStatus() {
   display.setTextSize(1);
-  display.setCursor(0,0);             // Start at top-left corner
-  display.println(SECRET_SSID);
-  display.print("IP: ");
-  display.println(WIFI_IP);
-  display.print("Signal: ");
-  display.print(WiFi.RSSI());
-  display.println(" dBm");
+  display.setCursor(0,0);
+
+  if(iWiFiStatus == WL_CONNECTED) {
+    display.print(F("IP: "));
+    display.println(WIFI_IP);
+  }
+  else
+  {
+    display.print(F("DISCONNECTED ("));
+    display.print(iWiFiStatus);
+    display.print(F(")"));
+  }
+
+  display.setCursor(0,8);
+  iWiFiSignal = WiFi.RSSI();
+
+  // Print Signal-Status as Signal-Bar if WIFI_SIGNAL_BAR is defined.
+  #ifdef WIFI_SIGNAL_BAR
+    if (iWiFiSignal <= -80 ||iWiFiSignal == 0) {
+      // No signal, so nothing to show except an error...
+      display.drawBitmap(111, 29, icWarning, 16, 16, 1);
+    }
+    else if(iWiFiSignal <= -70) {
+      display.drawBitmap(111, 27, icWIFI1, 16, 16, 1);
+    }
+    else if(iWiFiSignal <= -60) {
+      display.drawBitmap(111, 27, icWIFI2, 16, 16, 1);
+    }
+    else if(iWiFiSignal <= -50) {
+      display.drawBitmap(111, 27, icWIFI3, 16, 16, 1);
+    }
+    else {
+      display.drawBitmap(111, 27, icWIFI4, 16, 16, 1);
+    }
+  #else
+    // Print Signal-Status as Text if WIFI_SIGNAL_BAR is commented out.
+    display.print(F("Signal: "));
+    display.print(iWiFiSignal);
+    display.println(F(" dBm"));
+  #endif
 }
 
 // Refresh Sensor-Values from DHT sensor.
@@ -279,9 +348,12 @@ void refreshSensorValues() {
 }
 
 // Print Sensor Values on Display.
-void printSensorValues() {
+void printSensorValues() { 
+  display.drawBitmap(0, 30, icTemperature, 16, 16, 1);
+  display.drawBitmap(0, 46, icHumidity, 16, 16, 1);
+
   display.setTextSize(2);
-  display.setCursor(0,34);  
+  display.setCursor(18, 30);
 
   if(bHasTemp) {
     display.print(fRealTemp);
@@ -289,13 +361,13 @@ void printSensorValues() {
   else {
     display.print(F("EE"));
   }
-  display.println(" *C");
- 
+
+  display.setCursor(18, 46);
+  
   if(bHasHumid) {
     display.print(fRealHumid);
   }
   else {
     display.print(F("EE"));
   }
-  display.println(" %");
 }

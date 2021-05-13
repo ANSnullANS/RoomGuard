@@ -17,3 +17,6 @@ float   ALERT_HUMID =     40.0;
 
 #define SD_ENABLED    true
 #define SD_CS         10
+
+// Display-Options
+#define WIFI_SIGNAL_BAR   true
