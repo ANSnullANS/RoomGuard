@@ -15,8 +15,11 @@ String  GSM_ALERT_PHONE = "+430000000";
 float   ALERT_TEMP =      30.0;
 float   ALERT_HUMID =     40.0;
 
-#define SD_ENABLED    true
+//#define SD_ENABLED    true
 #define SD_CS         10
 
 // Display-Options
 #define WIFI_SIGNAL_BAR   true
+
+// SNMP Agent Settings
+#define SNMP_ENABLED      true

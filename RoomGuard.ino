@@ -14,6 +14,11 @@
   File oSDFile;
 #endif
 
+#ifdef SNMP_ENABLED
+  #include <AgentuinoWiFi.h>
+  #include "snmp_config.h"
+#endif
+
 // Variables for WiFi Connection.
 int iWiFiStatus = WL_IDLE_STATUS;
 WiFiServer oServer(80);
@@ -44,6 +49,9 @@ long lLastSensorUpdate = 0;
 long lSensorInterval = 5000;
 long lLastWiFiCheck = 0;
 long lWiFiInterval = 5000;
+
+// Memory Status
+int iFreeMemory = 32000;
 
 // Setup all components and connect to WiFi.
 void setup() {
@@ -166,6 +174,23 @@ void setup() {
   WIFI_IP = WiFi.localIP();
   oServer.begin();
 
+  #ifdef SNMP_ENABLED
+    // Initialize SNMP
+    iSNMPStatus = Agentuino.begin();
+
+    if ( iSNMPStatus == SNMP_API_STAT_SUCCESS ) {
+      Agentuino.onPduReceive(pduReceived);
+      delay(10);
+    }
+    else {
+      display.println(F("SNMP ERR"));
+      #ifdef DEBUG
+        Serial.print(F("SNMP ERR: "));
+        Serial.println(iSNMPStatus);
+      #endif
+    }
+  #endif
+  
   blackoutScreen();
   printWiFiStatus();
 
@@ -182,11 +207,25 @@ void loop() {
     lLastWiFiCheck = lNow;
   }
 
-  // Update sensor data after refresh-timeout.
+  // Update sensor data & memory stats after refresh-timeout.
   if (lNow >= lLastSensorUpdate + lSensorInterval || lLastSensorUpdate == 0) {
     refreshSensorValues();
+    iFreeMemory = freeMemory();
+    #ifdef DEBUG
+      Serial.println(iFreeMemory);
+    #endif
     lLastSensorUpdate = lNow;
   }
+
+  #ifdef SNMP_ENABLED
+    if ( millis() - prevMillis > 1000 ) {
+      // increment previous milliseconds
+      prevMillis += 1000;
+      //
+      // increment up-time counter
+      locUpTime += 100;
+    } 
+  #endif
 
   // Update display after refresh-timeout.
   if (lNow >= lLastUpdate + lUpdateInterval || lLastUpdate == 0) {
@@ -248,6 +287,9 @@ void loop() {
       Serial.println("client disconnected");
     #endif
   }
+
+  // Check for SNMP requests.
+  Agentuino.listen();
 }
 
 // Check WiFi Status and Reconnect if necessary.
