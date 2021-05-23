@@ -43,6 +43,13 @@ GPL 2.1
 
 Copyright (c) 2015 Arduino LLC. All rights reserved.
 
+### WiFiNINA
+GPL 2.1
+
+Copyright (c) 2018 Arduino SA. All rights reserved.
+
+Copyright (c) 2011-2014 Arduino LLC. All right reserved.
+
 ### Wire
 GPL 2.1
 
