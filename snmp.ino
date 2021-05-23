@@ -43,11 +43,7 @@ void pduReceived()
     
     if ( strcmp_P(oid, sysDescr ) == 0 ) {
       // handle sysDescr (set/get) requests
-      if ( oPDU.type == SNMP_PDU_SET ) {
-        // response packet from set-request - object is read-only
-        oPDU.type = SNMP_PDU_RESPONSE;
-        oPDU.error = SNMP_ERR_READ_ONLY;
-      } else {
+      if ( oPDU.type == SNMP_PDU_GET ) {
         // response packet from get-request - locDescr
         iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, locDescr);
         oPDU.type = SNMP_PDU_RESPONSE;
@@ -102,12 +98,7 @@ void pduReceived()
       }
     } else if ( strcmp_P(oid, sysName ) == 0 ) {
       // handle sysName (set/get) requests
-      if ( oPDU.type == SNMP_PDU_SET ) {
-        // response packet from set-request - object is read/write
-        iSNMPError = oPDU.VALUE.decode(locName, strlen(locName)); 
-        oPDU.type = SNMP_PDU_RESPONSE;
-        oPDU.error = iSNMPError;
-      } else {
+      if ( oPDU.type == SNMP_PDU_GET ) {
         // response packet from get-request - locName
         iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, locName);
         oPDU.type = SNMP_PDU_RESPONSE;
@@ -116,12 +107,7 @@ void pduReceived()
       //
     } else if ( strcmp_P(oid, sysContact ) == 0 ) {
       // handle sysContact (set/get) requests
-      if ( oPDU.type == SNMP_PDU_SET ) {
-        // response packet from set-request - object is read/write
-        iSNMPError = oPDU.VALUE.decode(locContact, strlen(locContact)); 
-        oPDU.type = SNMP_PDU_RESPONSE;
-        oPDU.error = iSNMPError;
-      } else {
+      if ( oPDU.type == SNMP_PDU_GET ) {
         // response packet from get-request - locContact
         iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, locContact);
         oPDU.type = SNMP_PDU_RESPONSE;
@@ -130,12 +116,7 @@ void pduReceived()
       //
     } else if ( strcmp_P(oid, sysLocation ) == 0 ) {
       // handle sysLocation (set/get) requests
-      if ( oPDU.type == SNMP_PDU_SET ) {
-        // response packet from set-request - object is read/write
-        iSNMPError = oPDU.VALUE.decode(locLocation, strlen(locLocation)); 
-        oPDU.type = SNMP_PDU_RESPONSE;
-        oPDU.error = iSNMPError;
-      } else {
+      if ( oPDU.type == SNMP_PDU_GET ) {
         // response packet from get-request - locLocation
         iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, locLocation);
         oPDU.type = SNMP_PDU_RESPONSE;
