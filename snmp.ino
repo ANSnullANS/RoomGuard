@@ -39,24 +39,44 @@ void pduReceived()
         pdu.type = SNMP_PDU_RESPONSE;
         pdu.error = iSNMPError;
       }
+    } else if (strcmp_P(oid, mibSignal) == 0) { // WiFi Signal Strength requested
+       if ( pdu.type == SNMP_PDU_GET ) {
+        iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_INT, int16_t(iWiFiSignal));
+        pdu.type = SNMP_PDU_RESPONSE;
+        pdu.error = iSNMPError;
+      }
+    } else if (strcmp_P(oid, mibStatus) == 0) { // WiFiStatus Requested
+        if ( pdu.type == SNMP_PDU_GET ) {
+          if (iWiFiStatus == 255) {
+            iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_OCTETS, WiFiStatusNoModule);
+          }
+          else {
+            iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_OCTETS, WiFiStatusStrings[iWiFiStatus]);
+          }
+          pdu.type = SNMP_PDU_RESPONSE;
+          pdu.error = iSNMPError;
+        }
     } else if ( strcmp_P(oid, sysUpTime ) == 0 ) {
       // handle sysName (set/get) requests
-      if ( pdu.type == SNMP_PDU_SET ) {
-        // response packet from set-request - object is read-only
-        pdu.type = SNMP_PDU_RESPONSE;
-        pdu.error = SNMP_ERR_READ_ONLY;
-      } else {
+      if ( pdu.type == SNMP_PDU_GET ) {
         // response packet from get-request - locUpTime
         iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_TIME_TICKS, locUpTime);       
         pdu.type = SNMP_PDU_RESPONSE;
         pdu.error = iSNMPError;
-        #ifdef DEBUG
-          Serial.print(pdu.type);
-          Serial.print(" / ");
-          Serial.println(pdu.error);
-        #endif
       }
       //
+    } else if (strcmp_P(oid, mibMemTotal) == 0) {
+      if (pdu.type == SNMP_PDU_GET) {
+        iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_INT, iMemTotal);
+        pdu.type = SNMP_PDU_RESPONSE;
+        pdu.error = iSNMPError;
+      }
+    } else if (strcmp_P(oid, mibMemFree) == 0) {
+      if (pdu.type == SNMP_PDU_GET) {
+        iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_INT, int16_t(iFreeMemory));
+        pdu.type = SNMP_PDU_RESPONSE;
+        pdu.error = iSNMPError;
+      }
     } else if ( strcmp_P(oid, sysName ) == 0 ) {
       // handle sysName (set/get) requests
       if ( pdu.type == SNMP_PDU_SET ) {
@@ -99,6 +119,28 @@ void pduReceived()
         pdu.error = iSNMPError;
       }
       //
+    } else if (strcmp_P(oid, mibSensor0Temp ) == 0) {
+       if ( pdu.type == SNMP_PDU_GET ) {
+        if(bHasTemp) {
+          iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_INT, iSNMPTemp);
+        }
+        else {
+          iSNMPError = SNMP_ERR_BAD_VALUE;
+        }
+        pdu.type = SNMP_PDU_RESPONSE;
+        pdu.error = iSNMPError;
+      }
+    } else if (strcmp_P(oid, mibSensor0Humid ) == 0) {
+       if ( pdu.type == SNMP_PDU_GET ) {
+        if(bHasHumid) {
+          iSNMPError = pdu.VALUE.encode(SNMP_SYNTAX_INT, iSNMPHumid);
+        }
+        else {
+          iSNMPError = SNMP_ERR_BAD_VALUE;
+        }
+        pdu.type = SNMP_PDU_RESPONSE;
+        pdu.error = iSNMPError;
+      }
     } else {
       // oid does not exist
       // response packet - object not found

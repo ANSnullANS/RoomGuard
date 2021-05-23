@@ -17,6 +17,9 @@
 #ifdef SNMP_ENABLED
   #include <AgentuinoWiFi.h>
   #include "snmp_config.h"
+  
+  int16_t iSNMPTemp = 0;
+  int16_t iSNMPHumid = 0;
 #endif
 
 // Variables for WiFi Connection.
@@ -387,6 +390,12 @@ void refreshSensorValues() {
     fRealHumid = float(pEvent.relative_humidity) + HUMID_CORRECT;
     bHasHumid = true;
   }
+
+  #ifdef SNMP_ENABLED
+    // Convert float to integer for SNMP; DISPLAY-HINT is configured in ROOMGUARD-MIB.txt
+    iSNMPTemp = fRealTemp * 10;
+    iSNMPHumid = fRealHumid * 10;
+  #endif
 }
 
 // Print Sensor Values on Display.
