@@ -72,12 +72,10 @@ void setup() {
 
   // Show Boot-Screen.
   display.clearDisplay();
-  display.setTextSize(2);             // Normal 1:1 pixel scale
+  display.setTextSize(1);             // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
-  display.println(F("RoomGuard"));
-  display.setTextSize(1);
-  display.println(F("starting up..."));
+  display.println(F("RoomGuard starting..."));
   display.println();
 
   // Load Settings from SD-Card if SD_ENABLED is defined.
@@ -132,6 +130,13 @@ void setup() {
       Serial.print(F("Alert Humid:"));
       Serial.println(ALERT_HUMID);
     #endif
+
+    #ifdef SNMP_ENABLED
+      #ifdef SNMP_SDCONFIG
+        // Load SNMP values from SD-Card.
+        readSNMPDatafromSD();
+      #endif
+    #endif
   #else
     // If SD-Card is not enabled, use settings from config.h and secrets.h
     char aSSID[] = SECRET_SSID;
@@ -145,7 +150,6 @@ void setup() {
   #endif
   
   display.display();
-
 
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
@@ -179,19 +183,25 @@ void setup() {
 
   #ifdef SNMP_ENABLED
     // Initialize SNMP
+    display.print(F("SNMP: "));
+    display.display();
     iSNMPStatus = Agentuino.begin();
 
     if ( iSNMPStatus == SNMP_API_STAT_SUCCESS ) {
       Agentuino.onPduReceive(pduReceived);
       delay(10);
+      display.println(F("OK"));
     }
     else {
-      display.println(F("SNMP ERR"));
+      display.print(F("ERR "));
+      display.println(iSNMPStatus);
       #ifdef DEBUG
         Serial.print(F("SNMP ERR: "));
         Serial.println(iSNMPStatus);
       #endif
     }
+
+    display.display();
   #endif
   
   blackoutScreen();
@@ -215,6 +225,7 @@ void loop() {
     refreshSensorValues();
     iFreeMemory = freeMemory();
     #ifdef DEBUG
+      Serial.print(F("Free RAM: "));
       Serial.println(iFreeMemory);
     #endif
     lLastSensorUpdate = lNow;
@@ -291,8 +302,10 @@ void loop() {
     #endif
   }
 
-  // Check for SNMP requests.
-  Agentuino.listen();
+  #ifdef SNMP_ENABLED
+    // Check for SNMP requests.
+    Agentuino.listen();
+  #endif 
 }
 
 // Check WiFi Status and Reconnect if necessary.
@@ -407,7 +420,7 @@ void printSensorValues() {
   display.setCursor(18, 30);
 
   if(bHasTemp) {
-    display.print(fRealTemp);
+    display.print(fRealTemp,1);
   }
   else {
     display.print(F("EE"));
@@ -416,7 +429,7 @@ void printSensorValues() {
   display.setCursor(18, 46);
   
   if(bHasHumid) {
-    display.print(fRealHumid);
+    display.print(fRealHumid,1);
   }
   else {
     display.print(F("EE"));
