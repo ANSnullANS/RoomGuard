@@ -54,3 +54,6 @@ Room Temperature Monitor with WiFi (and optional GSM) connectivity. Based on Ard
 
 ### Wiring
 see WIRING.md (https://github.com/ANSnullANS/RoomGuard/blob/main/WIRING.md)
+
+### Credits
+see CREDITS.md (https://github.com/ANSnullANS/RoomGuard/blob/main/CREDITS.md)
