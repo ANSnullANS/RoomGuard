@@ -4,7 +4,39 @@ The portation was required so that the library is capable of running on WiFiNINA
 
 The ported version is available on Github <https://github.com/ANSnullANS/Agentuino>.
 
+## Configuration
+
+RoomGuard is listening on port 161/upd (default SNMP port).
+
+The values for Name, Contact and Location (RFC1213) are limited to 32 characters by default to safe memory. Increase their array-size in "snmp_config.h" if needed.
+
+### Without SD-Card
+In "config.h":
+- make sure that `#define SNMP_ENABLED true` is *NOT* commented out!
+- make sure that `#define SNMP_SDCONFIG true` is commented out!
+
+In "snmp_config.h":
+- Update value of `char locContact[32] PROGMEM` to your local Contact for this RoomGuard Device.
+- Update value of `char locName[32] PROGMEM` to the Name of this RoomGuard Device (use whatevery feels right ;) ).
+- Update value of `char locLocation[32] PROGMEM` to the physical location of this RoomGuard Device.
+
+### Load config from SD-Card
+This requires that all settings are loaded from SD-Card (rg.cfg)!
+
+In "config.h":
+- make sure that `#define SNMP_ENABLED true` is *NOT* commented out!
+- make sure that `#define SNMP_SDCONFIG true` is *NOT* commented out!
+
+On SD-Card:
+- create new file named "snmp.cfg"
+- Insert values into "snmp.cfg":
+-- Name of this RoomGuard Device (e.g. roomguard01)
+-- Location (e.g. Server-Room)
+-- Contact (e.g. Paco Lechner)
+
 # Implemented Parameters
+All parameters are implemented for SNMPGET only!
+
 ## MIB
 If you're using any SNMP-Collector which is capable of working with MIB files, copy "ROOMGUARD-MIB.txt" to it's MIB-Storage and/or load the MIB manually.
 
