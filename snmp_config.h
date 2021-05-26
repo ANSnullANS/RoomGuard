@@ -36,24 +36,24 @@ static uint32_t locUpTime           = 0;                  // read-only (static)
 * ROOMGUARD-MIB
 **************************/
 // WiFi Information
-// 1.3.6.1.4.1.<PEN>.1.1.1 = mibSSID
-static char mibSSID[] PROGMEM       = "1.3.6.1.4.1.1600.1.1.1.0"; // read-only (DisplayString)
-// 1.3.6.1.4.1.<PEN>.1.1.2 = mibStatus
-static char mibStatus[] PROGMEM     = "1.3.6.1.4.1.1600.1.1.2.0"; // read-only (DisplayString)
-// 1.3.6.1.4.1.<PEN>.1.1.3 = mibSignal
-static char mibSignal[] PROGMEM     = "1.3.6.1.4.1.1600.1.1.3.0"; // read-only 
+// 1.3.6.1.4.1.57477.1.1.1 = mibSSID
+static char mibSSID[] PROGMEM       = "1.3.6.1.4.1.57477.1.1.1.0"; // read-only (DisplayString)
+// 1.3.6.1.4.1.57477.1.1.2 = mibStatus
+static char mibStatus[] PROGMEM     = "1.3.6.1.4.1.57477.1.1.2.0"; // read-only (DisplayString)
+// 1.3.6.1.4.1.57477.1.1.3 = mibSignal
+static char mibSignal[] PROGMEM     = "1.3.6.1.4.1.57477.1.1.3.0"; // read-only 
 
 // Sensor(s)
-// 1.3.6.1.4.1.<PEN>.1.2.1.1 = mibSensor0Temp
-static char mibSensor0Temp[] PROGMEM  = "1.3.6.1.4.1.1600.1.2.1.1.0"; // read-only (Integer)
-// 1.3.6.1.4.1.<PEN>.1.2.1.2 = mibSensor0Temp
-static char mibSensor0Humid[] PROGMEM  = "1.3.6.1.4.1.1600.1.2.1.2.0"; // read-only (Integer)
+// 1.3.6.1.4.1.57477.1.2.1.1 = mibSensor0Temp
+static char mibSensor0Temp[] PROGMEM  = "1.3.6.1.4.1.57477.1.2.1.1.0"; // read-only (Integer)
+// 1.3.6.1.4.1.57477.1.2.1.2 = mibSensor0Temp
+static char mibSensor0Humid[] PROGMEM  = "1.3.6.1.4.1.57477.1.2.1.2.0"; // read-only (Integer)
 
 // System Information
-// 1.3.6.1.4.1.<PEN>.1.100.1 = mibMemTotal
-static char mibMemTotal[] PROGMEM = "1.3.6.1.4.1.1600.1.100.1.0"; // read-only (Integer)
-// 1.3.6.1.4.1.<PEN>.1.100.2 = mibMemFree
-static char mibMemFree[] PROGMEM = "1.3.6.1.4.1.1600.1.100.2.0"; // read-only (Integer)
+// 1.3.6.1.4.1.57477.1.100.1 = mibMemTotal
+static char mibMemTotal[] PROGMEM = "1.3.6.1.4.1.57477.1.100.1.0"; // read-only (Integer)
+// 1.3.6.1.4.1.57477.1.100.2 = mibMemFree
+static char mibMemFree[] PROGMEM = "1.3.6.1.4.1.57477.1.100.2.0"; // read-only (Integer)
 
 
 /**************************
