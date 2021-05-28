@@ -20,3 +20,8 @@ float   ALERT_HUMID =     40.0;
 
 // Display-Options
 #define WIFI_SIGNAL_BAR   true
+
+// SNMP Agent Settings
+#define SNMP_ENABLED      true
+// Load SNMP config from SD-Card.
+#define SNMP_SDCONFIG     true

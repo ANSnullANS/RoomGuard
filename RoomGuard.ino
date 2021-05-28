@@ -14,6 +14,14 @@
   File oSDFile;
 #endif
 
+#ifdef SNMP_ENABLED
+  #include <AgentuinoWiFi.h>
+  #include "snmp_config.h"
+  
+  int16_t iSNMPTemp = 0;
+  int16_t iSNMPHumid = 0;
+#endif
+
 // Variables for WiFi Connection.
 int iWiFiStatus = WL_IDLE_STATUS;
 WiFiServer oServer(80);
@@ -45,6 +53,9 @@ long lSensorInterval = 5000;
 long lLastWiFiCheck = 0;
 long lWiFiInterval = 5000;
 
+// Memory Status
+int iFreeMemory = 32000;
+
 // Setup all components and connect to WiFi.
 void setup() {
   Serial.begin(9600);
@@ -61,12 +72,10 @@ void setup() {
 
   // Show Boot-Screen.
   display.clearDisplay();
-  display.setTextSize(2);             // Normal 1:1 pixel scale
+  display.setTextSize(1);             // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
-  display.println(F("RoomGuard"));
-  display.setTextSize(1);
-  display.println(F("starting up..."));
+  display.println(F("RoomGuard starting..."));
   display.println();
 
   // Load Settings from SD-Card if SD_ENABLED is defined.
@@ -121,6 +130,13 @@ void setup() {
       Serial.print(F("Alert Humid:"));
       Serial.println(ALERT_HUMID);
     #endif
+
+    #ifdef SNMP_ENABLED
+      #ifdef SNMP_SDCONFIG
+        // Load SNMP values from SD-Card.
+        readSNMPDatafromSD();
+      #endif
+    #endif
   #else
     // If SD-Card is not enabled, use settings from config.h and secrets.h
     char aSSID[] = SECRET_SSID;
@@ -134,7 +150,6 @@ void setup() {
   #endif
   
   display.display();
-
 
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
@@ -166,6 +181,29 @@ void setup() {
   WIFI_IP = WiFi.localIP();
   oServer.begin();
 
+  #ifdef SNMP_ENABLED
+    // Initialize SNMP
+    display.print(F("SNMP: "));
+    display.display();
+    iSNMPStatus = Agentuino.begin();
+
+    if ( iSNMPStatus == SNMP_API_STAT_SUCCESS ) {
+      Agentuino.onPduReceive(pduReceived);
+      delay(10);
+      display.println(F("OK"));
+    }
+    else {
+      display.print(F("ERR "));
+      display.println(iSNMPStatus);
+      #ifdef DEBUG
+        Serial.print(F("SNMP ERR: "));
+        Serial.println(iSNMPStatus);
+      #endif
+    }
+
+    display.display();
+  #endif
+  
   blackoutScreen();
   printWiFiStatus();
 
@@ -182,11 +220,26 @@ void loop() {
     lLastWiFiCheck = lNow;
   }
 
-  // Update sensor data after refresh-timeout.
+  // Update sensor data & memory stats after refresh-timeout.
   if (lNow >= lLastSensorUpdate + lSensorInterval || lLastSensorUpdate == 0) {
     refreshSensorValues();
+    iFreeMemory = freeMemory();
+    #ifdef DEBUG
+      Serial.print(F("Free RAM: "));
+      Serial.println(iFreeMemory);
+    #endif
     lLastSensorUpdate = lNow;
   }
+
+  #ifdef SNMP_ENABLED
+    if ( millis() - prevMillis > 1000 ) {
+      // increment previous milliseconds
+      prevMillis += 1000;
+      //
+      // increment up-time counter
+      locUpTime += 100;
+    } 
+  #endif
 
   // Update display after refresh-timeout.
   if (lNow >= lLastUpdate + lUpdateInterval || lLastUpdate == 0) {
@@ -248,6 +301,11 @@ void loop() {
       Serial.println("client disconnected");
     #endif
   }
+
+  #ifdef SNMP_ENABLED
+    // Check for SNMP requests.
+    Agentuino.listen();
+  #endif 
 }
 
 // Check WiFi Status and Reconnect if necessary.
@@ -345,6 +403,12 @@ void refreshSensorValues() {
     fRealHumid = float(pEvent.relative_humidity) + HUMID_CORRECT;
     bHasHumid = true;
   }
+
+  #ifdef SNMP_ENABLED
+    // Convert float to integer for SNMP; DISPLAY-HINT is configured in ROOMGUARD-MIB.txt
+    iSNMPTemp = fRealTemp * 10;
+    iSNMPHumid = fRealHumid * 10;
+  #endif
 }
 
 // Print Sensor Values on Display.
@@ -356,7 +420,7 @@ void printSensorValues() {
   display.setCursor(18, 30);
 
   if(bHasTemp) {
-    display.print(fRealTemp);
+    display.print(fRealTemp,1);
   }
   else {
     display.print(F("EE"));
@@ -365,7 +429,7 @@ void printSensorValues() {
   display.setCursor(18, 46);
   
   if(bHasHumid) {
-    display.print(fRealHumid);
+    display.print(fRealHumid,1);
   }
   else {
     display.print(F("EE"));
