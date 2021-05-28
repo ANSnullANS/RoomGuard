@@ -33,7 +33,7 @@ ANSnullANS MODULE-IDENTITY
 	REVISION     "200406150000Z"
 	DESCRIPTION
 		"First Draft"
-	::= { enterprises 1600 }
+	::= { enterprises 57477 }
 
 -- RoomGuard Sub-Object of ANSnullANS.org PEN	
 RoomGuard		OBJECT IDENTIFIER ::= { ANSnullANS 1 }
