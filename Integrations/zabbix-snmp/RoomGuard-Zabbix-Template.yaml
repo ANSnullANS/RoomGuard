@@ -1,6 +1,6 @@
 zabbix_export:
   version: '5.2'
-  date: '2021-05-23T11:04:52Z'
+  date: '2021-05-28T20:27:58Z'
   groups:
     -
       name: Templates/Modules
@@ -34,7 +34,7 @@ zabbix_export:
         -
           name: 'Memory Free'
           type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.1600.1.100.2.0
+          snmp_oid: .1.3.6.1.4.1.57477.1.100.2.0
           key: mibMemFree
           delay: 5m
           units: B
@@ -63,7 +63,7 @@ zabbix_export:
         -
           name: 'Memory Total'
           type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.1600.1.100.1.0
+          snmp_oid: .1.3.6.1.4.1.57477.1.100.1.0
           key: mibMemTotal
           delay: 5m
           units: B
@@ -73,9 +73,9 @@ zabbix_export:
         -
           name: 'Humidity 0'
           type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.1600.1.2.1.2.0
+          snmp_oid: .1.3.6.1.4.1.57477.1.2.1.2.0
           key: mibSensor0Humid
-          delay: 5m
+          delay: 3m
           value_type: FLOAT
           units: '% rel.'
           applications:
@@ -98,9 +98,9 @@ zabbix_export:
         -
           name: 'Temperature 0'
           type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.1600.1.2.1.1.0
+          snmp_oid: .1.3.6.1.4.1.57477.1.2.1.1.0
           key: mibSensor0Temp
-          delay: 5m
+          delay: 3m
           value_type: FLOAT
           units: °C
           applications:
@@ -129,7 +129,7 @@ zabbix_export:
         -
           name: 'WiFi Signal'
           type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.1600.1.1.3.0
+          snmp_oid: .1.3.6.1.4.1.57477.1.1.3.0
           key: mibSignal
           delay: 5m
           value_type: FLOAT
@@ -137,10 +137,19 @@ zabbix_export:
           applications:
             -
               name: RoomGuard
+          triggers:
+            -
+              expression: '{last()}<-60'
+              name: 'WiFi Signal Bad'
+              priority: WARNING
+            -
+              expression: '{last()}<-70'
+              name: 'WiFi Signal Critical'
+              priority: HIGH
         -
           name: 'WiFi SSID'
           type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.1600.1.1.1.0
+          snmp_oid: .1.3.6.1.4.1.57477.1.1.1.0
           key: mibSSID
           delay: 5m
           trends: '0'
@@ -151,7 +160,7 @@ zabbix_export:
         -
           name: 'WiFi Status'
           type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.1600.1.1.2.0
+          snmp_oid: .1.3.6.1.4.1.57477.1.1.2.0
           key: mibStatus
           delay: 5m
           trends: '0'
@@ -219,6 +228,12 @@ zabbix_export:
               type: MULTIPLIER
               parameters:
                 - '0.01'
+          triggers:
+            -
+              expression: '{last()}<10'
+              name: 'Device Restarted'
+              priority: WARNING
+              manual_close: 'YES'
       macros:
         -
           macro: '{$ALARM_HUMID_HIGH}'
@@ -271,12 +286,35 @@ zabbix_export:
                   value:
                     name: 'RoomGuard Memory'
                     host: 'RoomGuard WiFi SNMP'
+            -
+              type: GRAPH_CLASSIC
+              'y': '12'
+              width: '23'
+              height: '4'
+              fields:
+                -
+                  type: GRAPH
+                  name: graphid
+                  value:
+                    name: 'WiFi Signal'
+                    host: 'RoomGuard WiFi SNMP'
   graphs:
     -
       name: 'RoomGuard Memory'
+      ymin_type_1: FIXED
+      ymax_type_1: ITEM
+      ymax_item_1:
+        host: 'RoomGuard WiFi SNMP'
+        key: mibMemTotal
       graph_items:
         -
           sortorder: '1'
+          color: 0080FF
+          item:
+            host: 'RoomGuard WiFi SNMP'
+            key: mibMemTotal
+        -
+          sortorder: '2'
           color: 1A7C11
           item:
             host: 'RoomGuard WiFi SNMP'
@@ -296,3 +334,12 @@ zabbix_export:
           item:
             host: 'RoomGuard WiFi SNMP'
             key: mibSensor0Humid
+    -
+      name: 'WiFi Signal'
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'RoomGuard WiFi SNMP'
+            key: mibSignal
