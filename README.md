@@ -7,6 +7,9 @@ Room Temperature Monitor with WiFi (and optional GSM) connectivity. Based on Ard
 - Show Values on OLED Display
 - Fetch Values via Webbrowser (XML Format)
   - Can be integrated in most Monitoring tools (e.g. Zabbix, Icinga)
+### Beta
+- SNMP (v1) integration
+-- Custom SNMP PEN Number
 ### In Progress
 - SMS-Alert support via SIM800L Module
 
