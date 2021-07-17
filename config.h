@@ -25,3 +25,7 @@ float   ALERT_HUMID =     40.0;
 #define SNMP_ENABLED      true
 // Load SNMP config from SD-Card.
 #define SNMP_SDCONFIG     true
+
+// Network Settings
+#define WIFI_ENABLED      false
+#define ETH_ENABLED       true
