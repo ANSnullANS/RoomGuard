@@ -1,6 +1,9 @@
 // Device Total RAM
 const int16_t iMemTotal = 32000;
 
+// String for unavailable values.
+String sNA = "N.A.";
+
 /**************************
 * RFC1213-MIB OIDs
 **************************/

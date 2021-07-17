@@ -52,26 +52,38 @@ void pduReceived()
       //
     } else if (strcmp_P(oid, mibSSID) == 0) { // SSID Requested
       if ( oPDU.type == SNMP_PDU_GET ) {
-        // Convert SSID to OCTETS and send back.
-        sSSID.toCharArray(aResponse, 64);
+        #if WIFI_ENABLED
+          // Convert SSID to OCTETS and send back.
+          sSSID.toCharArray(aResponse, 64);
+        #else
+          sNA.toCharArray(aResponse, 64);
+        #endif
         iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, aResponse);
         oPDU.type = SNMP_PDU_RESPONSE;
         oPDU.error = iSNMPError;
       }
     } else if (strcmp_P(oid, mibSignal) == 0) { // WiFi Signal Strength requested
        if ( oPDU.type == SNMP_PDU_GET ) {
-        iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_INT, int16_t(iWiFiSignal));
+        #if WIFI_ENABLED
+          iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_INT, int16_t(iWiFiSignal));
+        #else
+          iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_INT, int16_t(-99));
+        #endif
         oPDU.type = SNMP_PDU_RESPONSE;
         oPDU.error = iSNMPError;
       }
     } else if (strcmp_P(oid, mibStatus) == 0) { // WiFiStatus Requested
         if ( oPDU.type == SNMP_PDU_GET ) {
-          if (iWiFiStatus == 255) {
+          #if WIFI_ENABLED
+            if (iWiFiStatus == 255) {
+              iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, WiFiStatusNoModule);
+            }
+            else {
+              iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, WiFiStatusStrings[iWiFiStatus]);
+            }
+          #else
             iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, WiFiStatusNoModule);
-          }
-          else {
-            iSNMPError = oPDU.VALUE.encode(SNMP_SYNTAX_OCTETS, WiFiStatusStrings[iWiFiStatus]);
-          }
+          #endif
           oPDU.type = SNMP_PDU_RESPONSE;
           oPDU.error = iSNMPError;
         }

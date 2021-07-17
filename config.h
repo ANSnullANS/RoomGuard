@@ -15,8 +15,8 @@ String  GSM_ALERT_PHONE = "+430000000";
 float   ALERT_TEMP =      30.0;
 float   ALERT_HUMID =     40.0;
 
-#define SD_ENABLED    true
-#define SD_CS         10
+//#define SD_ENABLED    true
+#define SD_CS       10            // Use D10 when using WiFi - SD-Card can't be used together with W5500 module!
 
 // Display-Options
 #define WIFI_SIGNAL_BAR   true
@@ -24,8 +24,8 @@ float   ALERT_HUMID =     40.0;
 // SNMP Agent Settings
 #define SNMP_ENABLED      true
 // Load SNMP config from SD-Card.
-#define SNMP_SDCONFIG     true
+//#define SNMP_SDCONFIG     true
 
 // Network Settings
-#define WIFI_ENABLED      false
+//#define WIFI_ENABLED      true
 #define ETH_ENABLED       true
